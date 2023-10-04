@@ -1,0 +1,130 @@
+{
+  "name": "virtual_host_mismatches_on_apache_server",
+  "description": "This incident type refers to frequent mismatches between the virtual hosts configured on an Apache server. This can cause issues with routing traffic to the intended web application or website, resulting in downtime or other problems. It is important to address these mismatches promptly to ensure the proper functioning of the server and any associated applications.",
+  "params": [
+    {
+      "name": "HOSTNAME",
+      "value": ""
+    },
+    {
+      "name": "PATH_TO_APACHE_CONFIG_FILES",
+      "value": ""
+    },
+    {
+      "name": "PORT",
+      "value": ""
+    },
+    {
+      "name": "URL",
+      "value": ""
+    },
+    {
+      "name": "VIRTUAL_HOST",
+      "value": ""
+    },
+    {
+      "name": "HOST_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Virtual Host Mismatches on Apache Server.\nThis incident type refers to frequent mismatches between the virtual hosts configured on an Apache server. This can cause issues with routing traffic to the intended web application or website, resulting in downtime or other problems. It is important to address these mismatches promptly to ensure the proper functioning of the server and any associated applications."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check Apache configuration syntax errors"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `apachectl configtest`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check Apache configuration for the specified <virtual_host>"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `apachectl -S | grep '${VIRTUAL_HOST}'`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the HTTP response headers of the specified URL "
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `curl -I ${URL}`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the DNS resolution of the specified "
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `nslookup ${HOSTNAME}`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if the specified "
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `sudo netstat -tulpn | grep ':${PORT}'`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the Apache access log for requests to the specified <virtual_host>"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `sudo tail -f /var/log/apache2/access.log | grep '${VIRTUAL_HOST}'`"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Verify the Apache configuration files to ensure all the virtual host configurations are correct and consistent."
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_apache_config_reload_script($PATH_TO_APACHE_CONFIG_FILES)"
+    }
+  ]
+}
